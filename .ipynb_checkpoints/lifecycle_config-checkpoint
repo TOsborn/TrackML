@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# This script is run every time your SageMaker instance starts, and is necessary because installed packages and cloned repos are not saved when the instance is stopped. To use, paste this script into the “Start notebook” window when creating your lifecycle configuration, and enter your GitHub username (case-sensitive), password, and branch name (optional) where appropriate. Note that since your local copy of the TrackML repo is not saved when the instance is stopped, so don’t forget to push to remote before stopping; otherwise you will lose changes.
+
+# activate tensorflow_p36
+source activate tensorflow_p36
+
+# only contents of the folder SageMaker are visible in JupyterLab's file tree,
+# so we do everything in this directory.
+cd SageMaker
+
+# install helper library
+git clone https://github.com/LAL/trackml-library
+pip install trackml-library/
+
+git clone https://<username>:<password>@github.com/TOsborn/TrackML
+cd TrackML
+
+# optionally create a branch and/or move to desired branch
+# git branch <branch name>
+# git checkout <branch name>
