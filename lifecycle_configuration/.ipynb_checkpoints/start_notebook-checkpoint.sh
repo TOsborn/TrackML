@@ -38,9 +38,9 @@ pip install kaggle
 kaggle config set -n competition -v trackml-particle-identification
 
 # activate tensorflow_p36
-# source activate $CONDA_ENVIRONMENT
+source activate $CONDA_ENVIRONMENT
 
 # install helper library in the conda environment
-# pip install SageMaker/trackml-library/
+pip install SageMaker/trackml-library/
 
 END
