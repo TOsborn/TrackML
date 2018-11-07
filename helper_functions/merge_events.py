@@ -38,6 +38,24 @@ def merge_event_dataframes(spark, events_list):
                                     tx,ty,tz,tpx,tpy,tpz,
                                     weight,x,y,z,pt,nhits,
                                     total_value,event_id
+                                    
+        complete column list  : ['particle_id',
+                                 'hit_id',
+                                 'hit_order',
+                                 'tx',
+                                 'ty',
+                                 'tz',
+                                 'tpx',
+                                 'tpy',
+                                 'tpz',
+                                 'weight',
+                                 'x',
+                                 'y',
+                                 'z',
+                                 'pt',
+                                 'nhits',
+                                 'total_value',
+                                 'event_id'] 
     """
 
     # Source path urls
