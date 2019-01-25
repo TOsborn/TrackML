@@ -1,4 +1,5 @@
 # TODO: Account for cyclic tracks
+# TODO: Add comments 
 
 # global constants for indexing flow_dict
 CHILDREN = 0
@@ -32,7 +33,7 @@ class TrackSegment:
                 if child_dict[WEIGHT] >= threshold:
                     self.child_list.append(self._init_child(module_id, child_dict))
                 
-            self.child_list.sort(key=lambda pf: pf.get_weight(), reverse=True)
+            self.child_list.sort(key=lambda ts: ts.get_weight(), reverse=True)
             
             # build dictionary of child indices
             self.child_index_dict = {
@@ -53,6 +54,7 @@ class TrackSegment:
         i = 0
         while i < len(self.child_list) and self.child_list[i].weight >= threshold:
             yield self.child_list[i]
+            i += 1
             
             
     def get_child(self, module_id):
@@ -63,11 +65,11 @@ class TrackSegment:
         
         
     def get_descendant(self, module_list):
-        pf = self
+        ts = self
         for module_id in module_list:
-            pf = pf.get_child(module_id)
+            ts = ts.get_child(module_id)
             
-        return pf
+        return ts
     
     
     def get_module_id(self):
@@ -79,31 +81,36 @@ class TrackSegment:
     
     
     def get_ancestor(self, degree):
-        assert self.depth > degree
-        if degree == 1:
-            return self.get_parent()
+        if self.depth <= degree:
+            return None
         
-        return self.parent.get_ancestor(degree-1)
+        if degree == 0:
+            return self
+        
+        return self.get_parent().get_ancestor(degree-1)
     
 
-    def get_root(self):
+    def get_first_module(self):
+        if self.depth == 0:
+            return None
+        
         return self.get_ancestor(self.depth-1)
 
     
     def get_ancestor_list(self):
-        def rec(pf, module_list=[]):
-            if pf and pf.get_module_id():
-                module_list.append(pf)
-                rec(pf.get_parent(), module_list)
+        def rec(ts, ancestor_list=[]):
+            if ts and ts.get_module_id():
+                ancestor_list.append(ts)
+                rec(ts.get_parent(), ancestor_list)
                 
-            return module_list
+            return ancestor_list
         
-        module_list = rec(self)
-        module_list.reverse()
-        return module_list
+        ancestor_list = rec(self)
+        ancestor_list.reverse()
+        return ancestor_list
     
     
-    def get_module_id_list(self):
+    def get_module_list(self):
         return [ancestor.get_module_id() for ancestor in self.get_ancestor_list()]
     
     
