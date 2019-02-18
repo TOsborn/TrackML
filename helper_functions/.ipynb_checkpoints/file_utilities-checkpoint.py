@@ -17,14 +17,12 @@ def file_url(category, event_id=None, train_or_test="train"):
         and train_or_test are consistent with each other.
     train_or_test -- one of "train" (default) or "test".
     """
-    if category.startswith('blacklist'):
-        folder = 'dataset/blacklist'
-    elif category == 'hit_orders':
+    if category == 'hit_orders':
         folder = 'particles-in-order'
     elif category in ('sample_submission', 'detectors'):
-        return '/home/ec2-user/SageMaker/efs/dataset/{0}.csv'.format(category)
+        return '/home/ec2-user/SageMaker/efs/codalab_dataset/{0}.csv'.format(category)
     else:
-        folder = 'dataset/' + train_or_test
+        folder = 'codalab_dataset/' + train_or_test
     
     return '/home/ec2-user/SageMaker/efs/{0}/event{1:09d}-{2}.csv'.format(
         folder, event_id, category)

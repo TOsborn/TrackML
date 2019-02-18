@@ -25,27 +25,14 @@ def generate_hit_orders(event_id):
     """Generates hit_order dataframe for an event.
     
     When finished, prints the number of valid particles and hits as well as the number and
-    proportion of particles which were successfully placed in order.
+    percentage of particles which were successfully placed in order.
     """
     # load truth, blacklist_particles and blacklist_hits files.
     truth = pd.read_csv(file_url('truth', event_id))
-    blacklist_particles = pd.read_csv(file_url('blacklist_particles', event_id))
-    blacklist_hits = pd.read_csv(file_url('blacklist_hits', event_id))
-
-    # filter out track 0 (garbage track), tracks with three or fewer hits, 
-    # and rows with blacklisted hits and particles.
-    not_blacklist_particle = ~truth.particle_id.isin(blacklist_particles.particle_id)
-    not_blacklist_hit = ~truth.hit_id.isin(blacklist_hits.hit_id)
-    del blacklist_particles, blacklist_hits
 
     particle_num_hits = truth.groupby('particle_id')['particle_id'].transform('count')
     not_short_track = particle_num_hits > 3
-    del particle_num_hits
-
-    not_particle_zero = truth.particle_id != 0
-    
-    truth = truth[not_particle_zero & not_blacklist_particle & not_blacklist_hit & not_short_track]
-    del not_particle_zero, not_blacklist_particle, not_blacklist_hit, not_short_track
+    del particle_num_hits, not_short_track
     
     particle_weight = truth.groupby('particle_id')['weight'].transform('sum')
     truth.loc[:, 'weight_order'] = truth.weight/particle_weight
@@ -94,7 +81,7 @@ def generate_hit_orders(event_id):
     return truth
 
 def _correct_order(true_weight_order):
-    """Helper function for generate_hit_orders"""
+    """Helper function for generate_hit_orders."""
     return lambda particle: np.all(
         np.isclose(
             particle.weight_order.values, true_weight_order.loc[len(particle)].values,
