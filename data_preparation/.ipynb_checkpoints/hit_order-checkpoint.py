@@ -32,7 +32,12 @@ def generate_hit_orders(event_id):
 
     particle_num_hits = truth.groupby('particle_id')['particle_id'].transform('count')
     not_short_track = particle_num_hits > 3
-    del particle_num_hits, not_short_track
+    del particle_num_hits
+    
+    not_particle_zero = truth.particle_id != 0
+    
+    truth = truth[not_particle_zero & not_short_track]
+    del not_particle_zero, not_short_track
     
     particle_weight = truth.groupby('particle_id')['weight'].transform('sum')
     truth.loc[:, 'weight_order'] = truth.weight/particle_weight
