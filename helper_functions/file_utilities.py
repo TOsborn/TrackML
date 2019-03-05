@@ -10,8 +10,8 @@ def file_url(category, event_id=None, train_or_test="train"):
     category.
     
     Arguments:
-    category -- one of "cells", "hits", "particles", "truth", "blacklist",
-        "detectors", "sample_submission" or "hit_orders".
+    category -- one of "cells", "hits", "particles", "truth", "detectors",
+        "sample_submission" or "hit_orders".
     event_id -- the integer id of an event. Should be included unless
         category is "detectors" or "sample submission". Ensure that event_id
         and train_or_test are consistent with each other.

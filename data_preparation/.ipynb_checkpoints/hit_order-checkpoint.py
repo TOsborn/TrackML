@@ -27,17 +27,10 @@ def generate_hit_orders(event_id):
     When finished, prints the number of valid particles and hits as well as the number and
     percentage of particles which were successfully placed in order.
     """
-    # load truth, blacklist_particles and blacklist_hits files.
+    # load truth file.
     truth = pd.read_csv(file_url('truth', event_id))
-
-    particle_num_hits = truth.groupby('particle_id')['particle_id'].transform('count')
-    not_short_track = particle_num_hits > 3
-    del particle_num_hits
     
-    not_particle_zero = truth.particle_id != 0
-    
-    truth = truth[not_particle_zero & not_short_track]
-    del not_particle_zero, not_short_track
+    truth = truth[truth.weight > 0.]
     
     particle_weight = truth.groupby('particle_id')['weight'].transform('sum')
     truth.loc[:, 'weight_order'] = truth.weight/particle_weight

@@ -34,8 +34,10 @@ class DetectorGrid:
     irregular.
     
     """
+    
+
     def __init__(self, R_res, rot_res):
-        self.R_grid = np.geomspace(30., 1030., R_res)
+        self.R_grid = np.linspace(np.sqrt(30.), np.sqrt(1030.), R_res)**2
         self.cos_grid = np.cos(np.linspace(-np.pi, 0., rot_res))
         self.other_axes = [[1, 2], [0, 2], [0, 1]]
 
