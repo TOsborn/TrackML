@@ -8,36 +8,34 @@ if trackml_path not in sys.path:
 class DetectorGrid:
     """Class for dividing the detector region into bins.
     
-    There are two types of boundary surfaces:
-        1.  Concentric circles centered at the origin whose radii 
-            increase exponentially. Their number is specified by the
-            parameter R_res.
+    The detector region is partitioned by three types of boundary
+    surfaces:
+        1.  Concentric cylinders centered on the z-axis whose radii
+            increase quadratically. Their number is specified by the
+            parameter R_bins.
             
-        2.  Planes containing one of the three axes. The number
-            of planes containing each axis is specified by the
-            parameter rot_res. For each axis, the planes containing
-            it are spaced evenly by rotational angles equal to
-            2*pi/rot_res.
-    
-    The detector region is divided into partitions defined by
-    
-    P_i = {v in R^3 : argmin(v) == i}.
-    
-    The points in partition P_i are divided into bins by the planes
-    containing the jth axis, where j != i, and the concentric circles
-    described above.
-    
-    This approach results in bins which are relatively compact, have
-    volume which is approximately invariant with rotation, and which
-    scale on all axes in proportion to their distance from the origin.
-    Only bins lying on the boundaries between partitions tend to be
-    irregular.
-    
+        2.  Planes containing the z-axis spaced by equal rotations.
+            Their number is specified by theta_bins.
+            
+        3.  Planes perpendicular to the z-axis whose distance from
+            the plane z = 0 increases quadratically. The number of
+            planes on each side of the plane z = 0 is specified by
+            z_bins.
+            
+    This approach results in bins which are relatively compact, invariant
+    with rotation about the z-axis, and whose volume scales with their
+    distance from the origin. It also allows for partitioning bins into
+    equivalence classes of equal size, where R and z are equal for all
+    bins in a class but theta is allowed to vary. This is important for
+    our application.
+            
     """
-    
 
-    def __init__(self, R_res, rot_res):
-        self.R_grid = np.linspace(np.sqrt(30.), np.sqrt(1030.), R_res)**2
+    def __init__(self, R_bins, theta_bins, z_bins):
+        R_min, R_max = 30. 1030.
+        z_min, z_max = 
+        
+        self.R_grid = np.square(np.linspace(np.sqrt(30.), np.sqrt(1030.), R_res))
         self.cos_grid = np.cos(np.linspace(-np.pi, 0., rot_res))
         self.other_axes = [[1, 2], [0, 2], [0, 1]]
 
