@@ -1,5 +1,7 @@
 import sys
+
 import numpy as np
+import pandas as pd
 
 trackml_path = '/home/ec2-user/SageMaker/TrackML'
 if trackml_path not in sys.path:
@@ -8,51 +10,37 @@ if trackml_path not in sys.path:
 class DetectorGrid:
     """Class for dividing the detector region into bins.
     
-    There are two types of boundary surfaces:
-        1.  Concentric circles centered at the origin whose radii 
-            increase exponentially. Their number is specified by the
-            parameter R_res.
+    The detector region is partitioned by three types of boundary
+    surfaces:
+        1.  R-boundaries: Concentric cylinders centered on the z-axis.
             
-        2.  Planes containing one of the three axes. The number
-            of planes containing each axis is specified by the
-            parameter rot_res. For each axis, the planes containing
-            it are spaced evenly by rotational angles equal to
-            2*pi/rot_res.
-    
-    The detector region is divided into partitions defined by
-    
-    P_i = {v in R^3 : argmin(v) == i}.
-    
-    The points in partition P_i are divided into bins by the planes
-    containing the jth axis, where j != i, and the concentric circles
-    described above.
-    
-    This approach results in bins which are relatively compact, have
-    volume which is approximately invariant with rotation, and which
-    scale on all axes in proportion to their distance from the origin.
-    Only bins lying on the boundaries between partitions tend to be
-    irregular.
-    
+        2.  theta-boundaries: Planes containing the z-axis spaced by
+            equal angles.
+            
+        3.  z-boundaries: Planes perpendicular to the z-axis.
+        
+    The R and z-boundaries are created by binning into buckets of equal
+    count based on sample quantiles. Repeated values for these parameters
+    are counted only once, which helps to avoid problems caused by the
+    detectors having different orientations. theta-boundaries are divided
+    into evenly spaced bins rather than ones having equal sample counts.
+            
+    This approach results in bins which are relatively compact, invariant
+    with rotation about the z-axis, and whose volume scales with their
+    distance from the origin. It also allows for partitioning bins into
+    equivalence classes of equal size, where R and z are equal for all
+    bins in a class but theta is allowed to vary. This is important for
+    our application.
+            
     """
-    
-
-    def __init__(self, R_res, rot_res):
-        self.R_grid = np.linspace(np.sqrt(30.), np.sqrt(1030.), R_res)**2
-        self.cos_grid = np.cos(np.linspace(-np.pi, 0., rot_res))
-        self.other_axes = [[1, 2], [0, 2], [0, 1]]
-
+    def __init__(self, q):
+        self.grid_boundaries = pd.read_csv('/home/ec2-user/SageMaker/efs/detector_bin_arrays/grid_boundaries.csv') # -{}.csv'.format(q))
         
-    def get_bin_id(self, x, y, z):
-        v = np.array([x, y, z])
-        partition_idx = v.argmax()
         
-        R = np.linalg.norm(v)
-        R_idx = np.digitize(R, self.R_grid)
-        
-        u = v[self.other_axes[partition_idx]] / R
-        ang_idx_1, ang_idx_2 = np.digitize(u, self.cos_grid)
-        
-        return R_idx, partition_idx, ang_idx_1, ang_idx_2
+    def add_bin_cols(self, hits):
+        hits['R_bin'] = np.digitize(hits.R, self.grid_boundaries.R)
+        hits['theta_bin'] = np.digitize(hits.theta, self.grid_boundaries.theta)
+        hits['z_bin'] = np.digitize(hits.z, self.grid_boundaries.z)
         
         
     
